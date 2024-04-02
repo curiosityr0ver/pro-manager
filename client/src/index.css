@@ -15,7 +15,8 @@ button {
   cursor: pointer;
 }
 
-input, input::placeholder {
+input,
+input::placeholder {
   font-family: "Open Sans", sans-serif;
   letter-spacing: 0;
 }

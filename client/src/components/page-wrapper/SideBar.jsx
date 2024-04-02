@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import styles from "../css/SideBar.module.scss";
 import { NavLink, useNavigate } from "react-router-dom";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
@@ -10,6 +11,12 @@ const navItems = [
 	{
 		name: "Board",
 		route: "/dashboard",
+		logo: <MdOutlineSpaceDashboard />,
+		key: "board",
+	},
+	{
+		name: "Projects",
+		route: "/projects",
 		logo: <MdOutlineSpaceDashboard />,
 		key: "board",
 	},
