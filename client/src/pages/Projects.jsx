@@ -7,7 +7,6 @@ import styles from "./css/Projects.module.scss";
 import { useOutletContext } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { createProject } from "../apis/projects.js";
-import { set } from "date-fns";
 
 const analyticsGroup = [
 	{
@@ -39,10 +38,15 @@ function Projects() {
 		newMembers.splice(index2, 1);
 		setAnalyticsData([...analyticsData]);
 	};
-    const handleNewProjectSubmit = () => {
-
-        const { data: newProject, error } = await createProject({ ...newProject });
-        console.log(data, error);
+	const handleNewProjectSubmit = async () => {
+		const { data: newProject, error } = await createProject({ ...newProject });
+		if (error) {
+			notifyError("Can't Add Project, Try Again!");
+			setLoading(false);
+			return;
+		} else {
+			console.log(newProject);
+		}
 		setNewProject({
 			title: "",
 			description: "",

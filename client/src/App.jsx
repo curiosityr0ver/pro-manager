@@ -84,12 +84,10 @@ function App() {
 					<Route
 						path="/projects"
 						element={
-							<Projects />
-
-							// <AuthCheck authentication>
-							// 	{" "}
-							// 	<Projects />
-							// </AuthCheck>
+							<AuthCheck authentication>
+								{" "}
+								<Projects />
+							</AuthCheck>
 						}
 					/>
 					<Route
