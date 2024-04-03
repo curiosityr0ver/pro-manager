@@ -154,8 +154,13 @@ function Projects() {
 							✔
 						</h3>
 					</div>
-					<div style={styles.submit}>
-						<button onClick={() => handleNewProjectSubmit}>Add Project</button>
+					<div>
+						<button
+							className={styles.submitProject}
+							onClick={() => handleNewProjectSubmit}
+						>
+							Add Project
+						</button>
 					</div>
 				</div>
 			</main>
