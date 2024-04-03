@@ -3,10 +3,12 @@ import {
 	useState,
 } from "react";
 import styles from "./css/Projects.module.scss";
+import { IoAdd } from "react-icons/io5";
 // import { getTasksAnalytics } from "../apis/tasks";
 import { useOutletContext } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { createProject } from "../apis/projects.js";
+import TaskForm from "../components/board/TaskForm.jsx";
 
 const analyticsGroup = [
 	{
@@ -22,15 +24,25 @@ const analyticsGroup = [
 function Projects() {
 	const [analyticsData, setAnalyticsData] = useState([...analyticsGroup]);
 	const [member, setMember] = useState();
+	const [tasksData, setTasksData] = useState({
+		backlog: [],
+		"to-do": [],
+		progress: [],
+		done: [],
+	});
 	const [newProject, setNewProject] = useState({
 		title: "",
 		description: "",
 		admin: "",
 		members: [],
 	});
+	const addTask = (task) => {
+		setTasksData((prev) => ({ ...prev, "to-do": [...prev["to-do"], task] }));
+	};
 
 	const [loading, setLoading] = useState(false);
-	const { notifyError } = useOutletContext();
+	const { notifyError, showPopupModal } = useOutletContext();
+
 	const [currentInput, setCurrentInput] = useState();
 
 	const handleRemove = (index1, index2) => {
@@ -162,6 +174,9 @@ function Projects() {
 							Add Project
 						</button>
 					</div>
+					<span onClick={() => showPopupModal(TaskForm, { addTask })}>
+						To do <IoAdd />
+					</span>
 				</div>
 			</main>
 		</div>
