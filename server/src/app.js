@@ -27,10 +27,13 @@ app.get("/api/v1/health", (_, res) => {
 //Importing Routers
 import userRouter from "./routes/user.routes.js";
 import taskRouter from "./routes/task.routes.js";
+import projectRouter from "./routes/project.routes.js";
 
 //Declaring Routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/projects", projectRouter);
+
 
 //Error Handler Middleware
 app.use(errorHandler);

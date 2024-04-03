@@ -1,25 +1,26 @@
-import { Task } from "../models/task.model.js";
+import { Project } from "../models/project.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const addTask = asyncHandler(async (req, res) => {
-    const { title, priority, checklists = [], dueDate } = req.body;
+const addProject = asyncHandler(async (req, res) => {
+    const { title, description, members = [], dueDate } = req.body;
+    // return console.log(title, description, members, dueDate);
 
-    if (!title?.trim() || !priority || !checklists?.length) throw new ApiError(400, "Required fields are missing!");
+    if (!title?.trim() || !description || !members?.length) throw new ApiError(400, "Required fields are missing!");
 
-    const newTask = await Task.create({
+    const newProject = await Project.create({
         title: title.trim(),
-        priority: priority.toLowerCase(),
-        checklists,
+        description: description.toLowerCase(),
+        members,
         dueDate: dueDate || "",
-        user: req.user?._id
+        // user: req.user?._id
     });
 
-    if (!newTask) throw new ApiError(500, "Error occurred while creating a task!");
+    if (!newProject) throw new ApiError(500, "Error occurred while creating a task!");
 
     res.status(201).json(
-        new ApiResponse(201, "New task created successfully!", { task: newTask })
+        new ApiResponse(201, "New project created successfully!", { project: newProject })
     );
 
 });
@@ -131,98 +132,14 @@ const updateTaskState = asyncHandler(async (req, res) => {
     );
 });
 
-const getTasksAnalytics = asyncHandler(async (req, res) => {
 
-    const taskPiplines = [
-        [{
-            $match: {
-                user: req.user?._id
-            }
-        }, {
-            $group: {
-                _id: "$state",
-                count: { $sum: 1 }
-            }
-        },
-        {
-            $group: {
-                _id: null,
-                counts: { $push: { name: '$_id', count: '$count' } }
-            }
-        }],
-        [{
-            $match: {
-                user: req.user?._id,
-                state: { $ne: "done" },
-            }
-        }, {
-            $group: {
-                _id: "$priority",
-                count: { $sum: 1 }
-            }
-        },
-        {
-            $group: {
-                _id: null,
-                counts: { $push: { name: '$_id', count: '$count' } }
-            }
-        }],
-        [{
-            $match: {
-                user: req.user?._id,
-                dueDate: { $ne: "" },
-                state: { $ne: "done" },
-            }
-        }, {
-            $group: {
-                _id: null,
-                count: { $sum: 1 }
-            }
-        }, {
-            $project: {
-                _id: 0,
-                name: "dueDate",
-                count: "$count"
-            }
-        }]
-    ];
 
-    const [stateAnalytics, priorityAnalytics, dueDateAnalytics] = await Promise.all(
-        taskPiplines.map((pipeline) => Task.aggregate(pipeline))
-    );
-
-    const tasksCount = {};
-
-    for (const { name, count } of [...(stateAnalytics[0]?.counts ?? []), ...(priorityAnalytics[0]?.counts ?? []), (dueDateAnalytics[0] ?? {})]) {
-        if (name) tasksCount[name] = count;
-    }
-
-    res.status(200).json(
-        new ApiResponse(200, "Tasks Analytics fetched successfully", { analytics: tasksCount })
-    );
-
-});
-
-const toggleChecklistItem = asyncHandler(async (req, res) => {
-    const { taskId, checklistId } = req.params;
-
-    await Task.findOneAndUpdate(
-        { _id: taskId, 'checklists._id': checklistId },
-        { $set: { 'checklists.$.isChecked': req.body.isChecked } },
-    );
-
-    res.status(204).json(
-        new ApiResponse(204, "", {})
-    );
-});
 
 export {
-    addTask,
+    addProject,
     editTask,
     deleteTask,
     getTasksByDuration,
     getSingleTask,
     updateTaskState,
-    getTasksAnalytics,
-    toggleChecklistItem,
 };

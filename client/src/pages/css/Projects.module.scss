@@ -47,6 +47,15 @@ p {
 	font-size: 12px;
 }
 
+.addProject {
+	width: 20%;
+	background-color: #fa7070;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
 #admin {
 	font-weight: bold;
 	color: #fa7070;

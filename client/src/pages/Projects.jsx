@@ -8,7 +8,7 @@ import { IoAdd } from "react-icons/io5";
 import { useOutletContext } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { createProject } from "../apis/projects.js";
-import TaskForm from "../components/board/TaskForm.jsx";
+import ProjectForm from "../components/board/ProjectForm.jsx";
 
 const analyticsGroup = [
 	{
@@ -23,7 +23,6 @@ const analyticsGroup = [
 
 function Projects() {
 	const [analyticsData, setAnalyticsData] = useState([...analyticsGroup]);
-	const [member, setMember] = useState();
 	const [tasksData, setTasksData] = useState({
 		backlog: [],
 		"to-do": [],
@@ -43,29 +42,12 @@ function Projects() {
 	const [loading, setLoading] = useState(false);
 	const { notifyError, showPopupModal } = useOutletContext();
 
-	const [currentInput, setCurrentInput] = useState();
-
 	const handleRemove = (index1, index2) => {
 		const newMembers = analyticsData[index1].members;
 		newMembers.splice(index2, 1);
 		setAnalyticsData([...analyticsData]);
 	};
-	const handleNewProjectSubmit = async () => {
-		const { data: newProject, error } = await createProject({ ...newProject });
-		if (error) {
-			notifyError("Can't Add Project, Try Again!");
-			setLoading(false);
-			return;
-		} else {
-			console.log(newProject);
-		}
-		setNewProject({
-			title: "",
-			description: "",
-			admin: "",
-			members: [],
-		});
-	};
+
 	// useEffect(() => {
 	// 	(async () => {
 	// 		const { data: analytics, error } = await getTasksAnalytics();
@@ -103,80 +85,11 @@ function Projects() {
 						))}
 					</div>
 				))}
-				<div className={styles.data}>
-					{currentInput != 1 && (
-						<h1 onClick={() => setCurrentInput(1)}>Enter Title</h1>
-					)}
-					{currentInput == 1 && (
-						<input
-							className={styles.title}
-							value={newProject.title}
-							onChange={(e) => {
-								newProject.title = e.target.value;
-								setNewProject({ ...newProject });
-							}}
-							type="text"
-							placeholder="Title"
-						/>
-					)}
-					{currentInput != 2 && (
-						<h1 onClick={() => setCurrentInput(2)}>Enter Description</h1>
-					)}
-					<br />
-					{currentInput == 2 && (
-						<input
-							className={styles.description}
-							value={newProject.description}
-							onChange={(e) => {
-								newProject.description = e.target.value;
-								setNewProject({ ...newProject });
-							}}
-							type="text"
-							placeholder="Description"
-						/>
-					)}
-					<input
-						className={styles.admin}
-						value={newProject.admin}
-						onChange={(e) => {
-							newProject.admin = e.target.value;
-							setNewProject({ ...newProject });
-						}}
-						type="email"
-						placeholder="admin"
-					/>
-					<div style={{ justifyContent: "normal" }}>
-						<input
-							className={styles.member}
-							value={member}
-							onChange={(e) => {
-								setMember(e.target.value);
-							}}
-							type="text"
-							placeholder="add members"
-						/>
-
-						<h3
-							onClick={() => {
-								newProject.members.push(member);
-								setNewProject({ ...newProject });
-								setMember("");
-							}}
-						>
-							✔
-						</h3>
-					</div>
-					<div>
-						<button
-							className={styles.submitProject}
-							onClick={() => handleNewProjectSubmit}
-						>
-							Add Project
-						</button>
-					</div>
-					<span onClick={() => showPopupModal(TaskForm, { addTask })}>
-						To do <IoAdd />
-					</span>
+				<div
+					className={styles.addProject}
+					onClick={() => showPopupModal(ProjectForm, { addTask })}
+				>
+					<IoAdd />
 				</div>
 			</main>
 		</div>

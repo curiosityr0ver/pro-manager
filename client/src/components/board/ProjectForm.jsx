@@ -6,50 +6,45 @@ import { MdDelete } from "react-icons/md";
 import { format } from "date-fns";
 import { createTask, editTask } from "../../apis/tasks";
 
-const priorities = [
-	{ name: "high", color: "#FF2473" },
-	{ name: "moderate", color: "#18B0FF" },
-	{ name: "low", color: "#63C05B" },
-];
 function ProjectForm({
 	notifyError,
 	notifySuccess,
 	removePopupModal,
-	task: prevTask = null,
+	task: prevProject = null,
 	updateTask,
 	addTask,
 }) {
 	const [project, setProject] = useState({
-		title: prevTask?.title || "",
-		priority: prevTask?.priority || "",
-		dueDate: prevTask?.dueDate || "",
+		title: prevProject?.title || "",
+		description: prevProject?.description || "",
+		dueDate: prevProject?.dueDate || "",
 	});
-	const [checklists, setChecklists] = useState(prevTask?.checklists || []);
+	const [members, setMembers] = useState([]);
 	const [processing, setProcessing] = useState(false);
 	const datePickerRef = useRef();
 
 	const addNewList = () => {
-		setChecklists((prev) => [...prev, { isChecked: false, description: "" }]);
+		setMembers((prev) => [...prev, { isAdmin: false, description: "" }]);
 	};
 
 	const handleList = (index, operation, desc = "") => {
 		switch (operation) {
 			case "check":
-				setChecklists((prev) =>
+				setMembers((prev) =>
 					prev.map((list, idx) =>
-						idx === index ? { ...list, isChecked: !list.isChecked } : list
+						idx === index ? { ...list, isAdmin: !list.isChecked } : list
 					)
 				);
 				break;
 			case "text":
-				setChecklists((prev) =>
+				setMembers((prev) =>
 					prev.map((list, idx) =>
 						idx === index ? { ...list, description: desc } : list
 					)
 				);
 				break;
 			case "delete":
-				setChecklists((prev) => prev.filter((_, idx) => idx !== index));
+				setMembers((prev) => prev.filter((_, idx) => idx !== index));
 				break;
 			default:
 				break;
@@ -63,10 +58,9 @@ function ProjectForm({
 
 		//Error Handling
 		if (!project.title.trim()) error = "Title is required";
-		else if (!project.priority) error = "Priority is required";
-		else if (!checklists.length) error = "Atleast one checklist is required";
-		else if (checklists.some((list) => list.description.trim() === ""))
-			error = "Every checklist needs a description";
+		else if (!members.length) error = "Atleast one admin is required";
+		else if (members.some((list) => list.description.trim() === ""))
+			error = "Every entry needs an email";
 
 		if (error) {
 			notifyError(error);
@@ -74,22 +68,24 @@ function ProjectForm({
 			return;
 		}
 
-		project.checklists = checklists;
+		project.members = members;
 
-		const { data: taskData, error: taskError } = !prevTask?._id
+		// return console.log(project);
+
+		const { data: projectData, error: projectError } = !prevProject?._id
 			? await createTask(project)
-			: await editTask(project, prevTask._id);
+			: await editTask(project, prevProject._id);
 
-		if (taskError) {
-			notifyError(taskError);
+		if (projectError) {
+			notifyError(projectError);
 			setProcessing(false);
 		} else {
-			!prevTask?._id
-				? notifySuccess("New Task Created!")
-				: notifySuccess("Task Updated!");
-			!prevTask?._id
-				? addTask(taskData)
-				: updateTask(prevTask.state, taskData, prevTask._id);
+			!prevProject?._id
+				? notifySuccess("New Project Created!")
+				: notifySuccess("Project Updated!");
+			!prevProject?._id
+				? addTask(projectData)
+				: updateTask(prevProject.state, projectData, prevProject._id);
 			setProcessing(false);
 			removePopupModal();
 		}
@@ -110,41 +106,27 @@ function ProjectForm({
 						}
 						name="title"
 						id="task-title"
-						placeholder="Enter Task Title"
+						placeholder="Enter Project Title"
+					/>
+					<label htmlFor="task-desc">
+						Description <span>*</span>
+					</label>
+					<input
+						type="text"
+						value={project.description}
+						onChange={(e) =>
+							setProject((prev) => ({ ...prev, description: e.target.value }))
+						}
+						name="title"
+						id="task-title"
+						placeholder="Enter Project Description"
 					/>
 				</div>
-				<div className={styles.priority}>
-					<label htmlFor="priority">
-						Select Priority <span>*</span>
-					</label>
-					{priorities.map((priority) => (
-						<div
-							key={priority.name}
-							onClick={() =>
-								setProject((prev) => ({ ...prev, priority: priority.name }))
-							}
-							style={{
-								backgroundColor:
-									project.priority === priority.name ? "#EEECEC" : "",
-							}}
-						>
-							<span style={{ color: priority.color }}>&bull;</span>{" "}
-							{priority.name.toUpperCase()} PRIORITY
-						</div>
-					))}
-				</div>
 				<div className={styles.checklist}>
-					<label>
-						Checklist (
-						{`${checklists.reduce(
-							(acc, list) => (list.isChecked ? acc + 1 : acc),
-							0
-						)}/${checklists.length}`}
-						) <span>*</span>
-					</label>
+					<label>Members {members.length}</label>
 					{
 						<div>
-							{checklists.map((list, index) => (
+							{members.map((list, index) => (
 								<Checklist
 									key={list._id ?? index}
 									list={list}
