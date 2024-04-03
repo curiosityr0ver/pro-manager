@@ -17,6 +17,8 @@ const addProject = asyncHandler(async (req, res) => {
         // user: req.user?._id
     });
 
+    console.log(newProject);
+
     if (!newProject) throw new ApiError(500, "Error occurred while creating a task!");
 
     res.status(201).json(

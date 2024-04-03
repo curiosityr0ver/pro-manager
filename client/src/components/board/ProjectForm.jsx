@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { format } from "date-fns";
 import { createTask, editTask } from "../../apis/tasks";
+import { createProject } from "../../apis/projects";
 
 function ProjectForm({
 	notifyError,
@@ -73,13 +74,14 @@ function ProjectForm({
 		// return console.log(project);
 
 		const { data: projectData, error: projectError } = !prevProject?._id
-			? await createTask(project)
+			? await createProject(project)
 			: await editTask(project, prevProject._id);
 
-		if (projectError) {
+		if (projectError || projectData.statusCode != 201) {
 			notifyError(projectError);
 			setProcessing(false);
 		} else {
+			console.log(projectData);
 			!prevProject?._id
 				? notifySuccess("New Project Created!")
 				: notifySuccess("Project Updated!");
